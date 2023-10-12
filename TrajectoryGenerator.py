@@ -13,28 +13,30 @@ import numpy as np
 # @return 6*len(theta)的矩阵，第一行为x，第二行为y，第三行为z，第四行为vx，第五行为vy，第六行为vz
 
 
-
 def getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ):
     # 二维测试轨迹——圆形
-    stepDis = targetSpeed / controllerFreq #计算每一步的距离
-    stepTheta = stepDis / R #计算每一步的角度
-    theta = np.arange(0, 2 * np.pi, stepTheta) #生成0到2pi, 步长为stepTheta的数组 arrange创建等差数组
+    stepDis = targetSpeed / controllerFreq  # 计算每一步的距离
+    stepTheta = stepDis / R  # 计算每一步的角度
+    # 生成0到2pi, 步长为stepTheta的数组 arrange创建等差数组
+    theta = np.arange(0, 2 * np.pi, stepTheta)
 
-    x = R * np.cos(theta) + initX #极坐标系中圆的参数方程
+    x = R * np.cos(theta) + initX  # 极坐标系中圆的参数方程
     # print("x=",x)
     y = R * np.sin(theta) + initY
     # print("y=",y)
-    z = np.ones(len(theta)) * initZ #将所有点的z坐标初始化为initZ
+    z = np.ones(len(theta)) * initZ  # 将所有点的z坐标初始化为initZ
     # print("z=",z)
-    #ones创建长度为(len(theta) 即Theta的个数, 圆形轨迹上圆的数量的一维数组), 并初始化为全1
-    
+    # ones创建长度为(len(theta) 即Theta的个数, 圆形轨迹上圆的数量的一维数组), 并初始化为全1
+
     # 前向差分求速度
-    speedMatrix = np.eye(len(theta)) * (-1) #eye创建二维矩阵, 对角线为1, 其余为0, 现在将对角线上的元素全部初始化为-1
-    for i in range(len(theta)): #range是一个函数, 用来生成一个整数序列, 从0开始, 到len(theta)结束, 步长为1
-        speedMatrix[i][(i - 1) % len(theta)] = 1 # %是取余运算符, 左上-右下对角线下一行上的元素为1, 右上方的那个是1, 其余是0
+    # eye创建二维矩阵, 对角线为1, 其余为0, 现在将对角线上的元素全部初始化为-1
+    speedMatrix = np.eye(len(theta)) * (-1)
+    for i in range(len(theta)):  # range是一个函数, 用来生成一个整数序列, 从0开始, 到len(theta)结束, 步长为1
+        # %是取余运算符, 左上-右下对角线下一行上的元素为1, 右上方的那个是1, 其余是0
+        speedMatrix[i][(i - 1) % len(theta)] = 1
     speedMatrix = speedMatrix.T
 
-    vx = speedMatrix.dot(x) * controllerFreq #坐标的更新, 实际上是速度
+    vx = speedMatrix.dot(x) * controllerFreq  # 坐标的更新, 实际上是速度
     # print("vx=",vx)
     vy = speedMatrix.dot(y) * controllerFreq
     # print("vy=",vy)
@@ -46,7 +48,7 @@ def getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ):
     # vz = np.zeros(len(theta))
 
     # 合并为一个6*len(theta)的矩阵
-    trajectory = np.vstack((x, y, z, vx, vy, vz)) #vstack将数组按垂直方向叠加
+    trajectory = np.vstack((x, y, z, vx, vy, vz))  # vstack将数组按垂直方向叠加
     # print (trajectory)
 
     return trajectory
@@ -67,7 +69,8 @@ def getCircleHuman(R, targetSpeed, controllerFreq, initX, initY, initZ):
     midX = (xInit[changeIndex1] + xInit[changeIndex2]) / 2 - R / 2
     midY = (yInit[changeIndex1] + yInit[changeIndex2]) / 2
 
-    DistanceToMid = ((xInit[changeIndex1] - midX) ** 2 + (yInit[changeIndex1] - midY) ** 2) ** 0.5
+    DistanceToMid = ((xInit[changeIndex1] - midX) **
+                     2 + (yInit[changeIndex1] - midY) ** 2) ** 0.5
     num = int(DistanceToMid / stepDis)  # 直线段的点数
 
     Xmid1 = np.linspace(xInit[changeIndex1], midX, num)
@@ -134,8 +137,10 @@ def getLine(distance, targetSpeed, controllerFreq, initX, initY, initZ, Directio
     return trajectory
 
 # 定义类
+
+
 class MinimumTrajPlanner:
-    #类似于构造函数赋初始值
+    # 类似于构造函数赋初始值
     def __init__(self, path, arvSpeed, controllerFreq, v0, a0, vt, at, r):
         # r:derivertive order, 1:minimum vel 2:minimum acc 3:minimum jerk 4:minimum snap
         self.r = r
@@ -146,18 +151,19 @@ class MinimumTrajPlanner:
 
         # 检查速度和加速度是否为3*1
         if v0.shape != (3, 1) or a0.shape != (3, 1) or vt.shape != (3, 1) or at.shape != (3, 1):
-            raise ValueError('v0, a0, vt, at must be 3*1') #初速度, 初始加速度, 末速度, 末加速度 必须满足参数输入要求: 三行一列
+            # 初速度, 初始加速度, 末速度, 末加速度 必须满足参数输入要求: 三行一列
+            raise ValueError('v0, a0, vt, at must be 3*1')
 
         # 起始速度、加速度
         self.v0 = v0.T
         self.a0 = a0.T
 
         # 终止速度、加速度
-        self.vt = vt.T 
-        self.at = at.T 
+        self.vt = vt.T
+        self.at = at.T
 
         # 路径点的时刻
-        self.ts = None #自动创建, 不需要定义 厉害死了
+        self.ts = None  # 自动创建, 不需要定义 厉害死了
         self.T = None
 
         # 轨迹阶数
@@ -165,29 +171,30 @@ class MinimumTrajPlanner:
 
     def arrangeT(self):
         # 计算每个路径点的时间戳
-        dx = np.diff(self.path) #计算这个点和上一个点的差值 diff()计算数组中相邻元素的差值
-        #np.sum(dx ** 2, axis=0)每个维度的平方总和
-        #np.sqrt(np.sum(dx ** 2, axis=0))每个维度的平方总和求平方根, 得到每个维度上的长度
-        #np.sum(np.sqrt(np.sum(dx ** 2, axis=0))) 所有维度想加, 得到整个路径的总长或者弧长
-        distance = np.sum(np.sqrt(np.sum(dx ** 2, axis=0))) #axis=0表示按照列求和, axis=1表示按照行求和
-        self.T = distance / self.arvSpeed #arvSpeed是规定的平均速度, 可计算出需要花费的时间
-        #时间戳用于表示运动轨迹中的时间。对于每个路径点，时间戳表示该点在运动开始后经过的时间量
-        self.ts = [0] #ts是列表, 用来表示每个路径点对应的时间戳, 从0开始
+        dx = np.diff(self.path)  # 计算这个点和上一个点的差值 diff()计算数组中相邻元素的差值
+        # np.sum(dx ** 2, axis=0)每个维度的平方总和
+        # np.sqrt(np.sum(dx ** 2, axis=0))每个维度的平方总和求平方根, 得到每个维度上的长度
+        # np.sum(np.sqrt(np.sum(dx ** 2, axis=0))) 所有维度想加, 得到整个路径的总长或者弧长
+        # axis=0表示按照列求和, axis=1表示按照行求和
+        distance = np.sum(np.sqrt(np.sum(dx ** 2, axis=0)))
+        self.T = distance / self.arvSpeed  # arvSpeed是规定的平均速度, 可计算出需要花费的时间
+        # 时间戳用于表示运动轨迹中的时间。对于每个路径点，时间戳表示该点在运动开始后经过的时间量
+        self.ts = [0]  # ts是列表, 用来表示每个路径点对应的时间戳, 从0开始
 
-        #shape[1]表示列数, 即路径点的个数
-        #for循环, 从0开始, 到路径点的个数-1结束(最后的时刻已知), 步长为1
-        for i in range(self.path.shape[1] - 1): 
+        # shape[1]表示列数, 即路径点的个数
+        # for循环, 从0开始, 到路径点的个数-1结束(最后的时刻已知), 步长为1
+        for i in range(self.path.shape[1] - 1):
             # self.ts.append(self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed)
             dt = np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed
-            #np.sqrt(np.sum(dx[:, i] ** 2))表示第i个点和第i-1个点的差值, 两个路径点的距离
-            #np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed) 表示两个路径点之间的时间
-            #self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed将上述时间间隔加到上一个时间戳上，得到当前路径点的时间戳
-            #self.ts.append(...)将计算得到的时间戳添加到时间戳列表中，用于记录每个路径点对应的时间。
+            # np.sqrt(np.sum(dx[:, i] ** 2))表示第i个点和第i-1个点的差值, 两个路径点的距离
+            # np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed) 表示两个路径点之间的时间
+            # self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed将上述时间间隔加到上一个时间戳上，得到当前路径点的时间戳
+            # self.ts.append(...)将计算得到的时间戳添加到时间戳列表中，用于记录每个路径点对应的时间。
             if i == 0:
-            # For the first interval, use half of the calculated time interval
+                # For the first interval, use half of the calculated time interval
                 self.ts.append(self.ts[i] + 0.5 * dt)
             elif i == self.path.shape[1] - 2:
-            # For the last interval, use the remaining time
+                # For the last interval, use the remaining time
                 self.ts.append(self.ts[i] + 0.5 * dt)
                 self.ts.append(self.ts[i] + dt)
             else:
@@ -200,7 +207,7 @@ class MinimumTrajPlanner:
         self.ts = np.array(self.ts)
         # np.savetxt('ts.txt', self.ts, fmt='%.4f', delimiter=',')
 
-    def computeQ(self, n, r, t1, t2): #基于Lagrange多项式的插值
+    def computeQ(self, n, r, t1, t2):  # 基于Lagrange多项式的插值
         # n:polynormial order
         # r:derivertive order, 1:minimum vel 2:minimum acc 3:minimum jerk 4:minimum snap
         # t1:start timestamp for polynormial
@@ -217,7 +224,7 @@ class MinimumTrajPlanner:
                 k2 = j - r - 1
                 k = k1 + k2 + 1
                 Q[i - 1, j - 1] = np.prod(np.arange(k1 + 1, k1 + r + 1)) * np.prod(np.arange(k2 + 1, k2 + r + 1)) / k * \
-                                  T[k - 1]
+                    T[k - 1]
                 Q[j - 1, i - 1] = Q[i - 1, j - 1]
 
         return Q
@@ -271,7 +278,8 @@ class MinimumTrajPlanner:
             j = int(np.floor(i / 2)) + 1
             rbeg = (i - 1) * n_continuous + 1
             cbeg = (j - 1) * n_continuous + 1
-            M[rbeg - 1:rbeg + n_continuous - 1, cbeg - 1:cbeg + n_continuous - 1] = np.eye(n_continuous)
+            M[rbeg - 1:rbeg + n_continuous - 1, cbeg - 1:cbeg +
+                n_continuous - 1] = np.eye(n_continuous)
 
         # compute C
         num_d = n_continuous * (n_seg + 1)
@@ -351,21 +359,33 @@ class MinimumTrajPlanner:
         # 计算轨迹
         n_seg = self.path.shape[1] - 1
 
-        x = self.polys_vals(polys_x[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
-        y = self.polys_vals(polys_y[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
-        z = self.polys_vals(polys_z[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
+        x = self.polys_vals(polys_x[:, 0], self.ts[0],
+                            self.ts[1], 1 / self.Freq)
+        y = self.polys_vals(polys_y[:, 0], self.ts[0],
+                            self.ts[1], 1 / self.Freq)
+        z = self.polys_vals(polys_z[:, 0], self.ts[0],
+                            self.ts[1], 1 / self.Freq)
 
-        vx = self.polys_d_vals(polys_x[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
-        vy = self.polys_d_vals(polys_y[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
-        vz = self.polys_d_vals(polys_z[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
+        vx = self.polys_d_vals(
+            polys_x[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
+        vy = self.polys_d_vals(
+            polys_y[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
+        vz = self.polys_d_vals(
+            polys_z[:, 0], self.ts[0], self.ts[1], 1 / self.Freq)
 
         for i in range(1, n_seg):
-            x = np.hstack((x, self.polys_vals(polys_x[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
-            y = np.hstack((y, self.polys_vals(polys_y[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
-            z = np.hstack((z, self.polys_vals(polys_z[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
-            vx = np.hstack((vx, self.polys_d_vals(polys_x[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
-            vy = np.hstack((vy, self.polys_d_vals(polys_y[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
-            vz = np.hstack((vz, self.polys_d_vals(polys_z[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            x = np.hstack(
+                (x, self.polys_vals(polys_x[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            y = np.hstack(
+                (y, self.polys_vals(polys_y[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            z = np.hstack(
+                (z, self.polys_vals(polys_z[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            vx = np.hstack((vx, self.polys_d_vals(
+                polys_x[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            vy = np.hstack((vy, self.polys_d_vals(
+                polys_y[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
+            vz = np.hstack((vz, self.polys_d_vals(
+                polys_z[:, i], self.ts[i], self.ts[i + 1], 1 / self.Freq)))
 
         trajectory = np.vstack((x, y, z, vx, vy, vz))
 
@@ -382,21 +402,44 @@ class MinimumTrajPlanner:
 # # 生成圆形轨迹
 # circle_trajectory = getCircleHuman(R, targetSpeed, controllerFreq, initX, initY, initZ)
 
+
 # # 打印圆形轨迹数据
 # print("Circle Trajectory:")
 # print(circle_trajectory)
-distance = 1000.0  # 直线轨迹距离
+distance = 100.0  # 直线轨迹距离
 Direction = 'x'  # 方向为x轴
 targetSpeed = 100  # 目标速度
 initX = 0.0  # 初始位置x
 initY = 0.0  # 初始位置y
 initZ = 0.0  # 初始位置z
-controllerFreq=0.1
-R=500
+controllerFreq = 1
+R = 50
+# getLine
 # line11= getLine(distance, targetSpeed, controllerFreq, initX, initY, initZ, Direction)
 # print(line11)
+# getCircle
+circle=getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ)
+print(circle)
+# getCircleHuman
+# circleHuman = getCircleHuman(
+#     R, targetSpeed, controllerFreq, initX, initY, initZ)
+# print(circleHuman)
+v0 = np.array([[0.0], [0.0], [0.0]])  # Initial velocity
+a0 = np.array([[0.0], [0.0], [0.0]])  # Initial acceleration
+vt = np.array([[targetSpeed], [targetSpeed], [0.0]])  # Target velocity
+at = np.array([[0.0], [0.0], [0.0]])  # Target acceleration
+r = R  # Radius
+arvSpeed = 2.0  # Average speed
 
-# circle=getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ)
-# print(circle)
-circleHuman=getCircleHuman(R, targetSpeed, controllerFreq, initX, initY, initZ)
-print(circleHuman)
+planner = MinimumTrajPlanner(circle, arvSpeed, controllerFreq, v0, a0, vt, at, r)
+
+# Call the arrangeT method to calculate time stamps
+planner.arrangeT()
+
+# Access the time stamps
+time_stamps = planner.ts
+
+# Print the time stamps
+print("Time stamps:", time_stamps)
+
+# arrangeT

@@ -9,21 +9,24 @@ using namespace Eigen;
 using Eigen::MatrixXd;
 typedef std::vector<std::vector<double>> MyDoubleMatrix;
 typedef std::vector<double> MyDoubleVector;
-std::vector<std::vector<int>> matrix_multiply(const std::vector<std::vector<int>>& a, const std::vector<std::vector<int>>& b) {
+std::vector<std::vector<int>> matrix_multiply(const std::vector<std::vector<int>> &a, const std::vector<std::vector<int>> &b)
+{
     int n = a.size();
     int m = b[0].size();
     int p = b.size();
     std::vector<std::vector<int>> c(n, std::vector<int>(m, 0));
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            for (int k = 0; k < p; k++) {
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            for (int k = 0; k < p; k++)
+            {
                 c[i][j] += a[i][k] * b[k][j];
             }
         }
     }
     return c;
 }
-
 
 MyDoubleVector linspace(double start, double end, int num)
 {
@@ -342,6 +345,7 @@ public:
             std::cout << "Timestamp " << i << ": " << ts[i] << std::endl;
         }
     }
+    // 如何调用arrangeT?
 
     MyDoubleMatrix computeQ(int n, int r, double t1, double t2)
     {
@@ -376,190 +380,59 @@ public:
 
         return Q;
     }
-
-
-    MyDoubleMatrix computeSingleAxisTraj(MyDoubleVector path, double v0, double a0, double vt, double at)
+    MyDoubleVector getTimestamps() const
     {
-        // 计算单维度轨迹多项式参数
-
-        int n_coef = order + 1;  // 多项式系数个数
-        int n_seg = path.size() - 1;  // 轨迹段数
-
-        // compute Q
-        MyDoubleMatrix Q(n_coef * n_seg, MyDoubleVector(n_coef * n_seg, 0.0));
-        for (int k = 0; k < n_seg; ++k)
-        {
-            MyDoubleMatrix Q_k = computeQ(order, r, ts[k], ts[k + 1]);
-            for (int i = 0; i < n_coef; ++i)
-            {
-                for (int j = 0; j < n_coef; ++j)
-                {
-                    Q[k * n_coef + i][k * n_coef + j] = Q_k[i][j];
-                }
-            }
-        }
-
-        // compute Tk Tk(i,j) = ts(i)^(j)
-        MyDoubleMatrix Tk(n_seg + 1, MyDoubleVector(n_coef, 0.0));
-        for (int i = 0; i < n_coef; ++i)
-        {
-            for (int j = 0; j < n_seg + 1; ++j)
-            {
-                Tk[j][i] = pow(ts[j], i);
-            }
-        }
-
-        // compute A
-        int n_continuous = 3;  // 1:p  2:pv  3:pva  4:pvaj  5:pvajs
-        MyDoubleMatrix A(n_continuous * 2 * n_seg, MyDoubleVector(n_coef * n_seg, 0.0));
-        for (int i = 1; i < n_seg + 1; ++i)
-        {
-            for (int j = 1; j < n_continuous + 1; ++j)
-            {
-                for (int k = j; k < n_coef + 1; ++k)
-                {
-                    double t1 = Tk[i - 1][k - j];
-                    double t2 = Tk[i][k - j];
-                    double prod = 1.0;
-                    for (int m = k - j + 1; m <= k; ++m)
-                    {
-                        prod *= m;
-                    }
-                    A[n_continuous * 2 * (i - 1) + j - 1][n_coef * (i - 1) + k - 1] = prod * t1;
-                    A[n_continuous * 2 * (i - 1) + j - 1 + n_continuous][n_coef * (i - 1) + k - 1] = prod * t2;
-                }
-            }
-        }
-
-        // compute M
-        int num_d = n_continuous * (n_seg + 1);
-        MyDoubleMatrix M(n_continuous * 2 * n_seg, MyDoubleVector(n_continuous * (n_seg + 1), 0.0));
-        for (int i = 1; i < 2 * n_seg + 1; ++i)
-        {
-            int j = std::floor(i / 2) + 1;
-            int rbeg = (i - 1) * n_continuous;
-            int cbeg = (j - 1) * n_continuous;
-            for (int k = 0; k < n_continuous; ++k)
-            {
-                M[rbeg + k][cbeg + k] = 1.0;
-            }
-        }
-
-        // compute C
-        MyDoubleMatrix C(num_d, MyDoubleVector(num_d, 0.0));
-        MyDoubleVector df;
-        df.reserve(num_d);
-        for (int i = 0; i < path.size(); ++i)
-        {
-            df.push_back(path[i]);
-        }
-        df.push_back(v0);
-        df.push_back(a0);
-        df.push_back(vt);
-        df.push_back(at);
-        std::vector<int> fix_idx;
-        for (int i = 1; i < num_d; i += n_continuous)
-        {
-            fix_idx.push_back(i);
-        }
-        fix_idx.push_back(2);
-        fix_idx.push_back(3);
-        fix_idx.push_back(num_d - 1);
-        fix_idx.push_back(num_d);
-        std::vector<int> free_idx;
-        for (int i = 1; i <= num_d; ++i)
-        {
-            if (std::find(fix_idx.begin(), fix_idx.end(), i) == fix_idx.end())
-            {
-                free_idx.push_back(i);
-            }
-        }
-        for (int i = 0; i < num_d; ++i)
-        {
-            for (int j = 0; j < fix_idx.size(); ++j)
-            {
-                C[i][j] = (i == fix_idx[j] - 1) ? 1.0 : 0.0;
-            }
-            for (int j = 0; j < free_idx.size(); ++j)
-            {
-                C[i][fix_idx.size() + j] = (i == free_idx[j] - 1) ? 1.0 : 0.0;
-            }
-        }
-
-        MyDoubleMatrix AiMC = matrix_multiply(matrix_multiply(matrix_inverse(A), M), C);
-        MyDoubleMatrix R = matrix_multiply(matrix_multiply(matrix_transpose(AiMC), Q), AiMC);
-
-        int n_fix = fix_idx.size();
-        MyDoubleMatrix Rfp(n_fix, MyDoubleVector(n_coef * n_seg - n_fix, 0.0));
-        MyDoubleMatrix Rpp(n_coef * n_seg - n_fix, MyDoubleVector(n_coef * n_seg - n_fix, 0.0));
-        for (int i = 0; i < n_fix; ++i)
-        {
-            for (int j = 0; j < n_coef * n_seg - n_fix; ++j)
-            {
-                Rfp[i][j] = R[i][n_fix + j];
-                Rpp[i][j] = R[n_fix + i][n_fix + j];
-            }
-        }
-
-        MyDoubleMatrix dp = matrix_multiply(matrix_multiply(matrix_inverse(Rpp), matrix_transpose(Rfp)), matrix_transpose(df));
-        MyDoubleVector dp_flat;
-        for (int i = 0; i < dp.size(); ++i)
-        {
-            for (int j = 0; j < dp[i].size(); ++j)
-            {
-                dp_flat.push_back(dp[i][j]);
-            }
-        }
-
-        MyDoubleVector df_dp = df;
-        for (int i = 0; i < dp_flat.size(); ++i)
-        {
-            df_dp.push_back(dp_flat[i]);
-        }
-
-        MyDoubleMatrix p = matrix_multiply(AiMC, matrix_transpose(matrix_from_list(df_dp)));
-        MyDoubleMatrix ploys(n_coef, MyDoubleVector(n_seg, 0.0));
-        for (int i = 0; i < n_coef; ++i)
-        {
-            for (int j = 0; j < n_seg; ++j)
-            {
-                ploys[i][j] = p[i][j];
-            }
-        }
-
-        return ploys;
+        // Return the time stamps as a C++ vector
+        return MyDoubleVector(ts.begin(), ts.end());
     }
-
 };
 
 int main()
 {
     // Usage example
-    double R = 100.0;
+    double R = 50.0;
     double targetSpeed = 100;
-    double controllerFreq = 10.0;
+    double controllerFreq = 1.0;
     double initX = 0.0;
     double initY = 0.0;
     double initZ = 0.0;
-    double distance = 1000.0;
+    double distance = 100.0;
     char Direction = 'x';
-    /*print circle
-    MyDoubleMatrix circleTrajectory= getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ); // getCircleHuman目前调不出来
-     for (int i = 0; i < circleTrajectory[0].size(); ++i) {
-    std::cout << "x: " << circleTrajectory[0][i] << ", y: " << circleTrajectory[1][i] << ", z: " << circleTrajectory[2][i]
-              << ", vx: " << circleTrajectory[3][i] << ", vy: " << circleTrajectory[4][i] << ", vz: " << circleTrajectory[5][i] << std::endl;
-    */
-    // print circleHuman
-    MyDoubleMatrix circleTrajectory = getCircleHuman(R, targetSpeed, controllerFreq, initX, initY, initZ);
-    // Print the trajectory
+
+    MyDoubleMatrix circleTrajectory = getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ); // getCircleHuman目前调不出来
     for (int i = 0; i < circleTrajectory[0].size(); ++i)
     {
         std::cout << "x: " << circleTrajectory[0][i] << ", y: " << circleTrajectory[1][i] << ", z: " << circleTrajectory[2][i]
                   << ", vx: " << circleTrajectory[3][i] << ", vy: " << circleTrajectory[4][i] << ", vz: " << circleTrajectory[5][i] << std::endl;
     }
+        // print circleHuman
+        // MyDoubleMatrix circleTrajectory = getCircleHuman(R, targetSpeed, controllerFreq, initX, initY, initZ);
+        // // Print the trajectory
+        // for (int i = 0; i < circleTrajectory[0].size(); ++i)
+        // {
+        //     std::cout << "x: " << circleTrajectory[0][i] << ", y: " << circleTrajectory[1][i] << ", z: " << circleTrajectory[2][i]
+        //               << ", vx: " << circleTrajectory[3][i] << ", vy: " << circleTrajectory[4][i] << ", vz: " << circleTrajectory[5][i] << std::endl;
+        // }
 
-    // Matrix<double, 6, Dynamic> lineTrajectory = getLine(distance, targetSpeed, controllerFreq, initX, initY, initZ, "x");
-    // std::cout<<lineTrajectory<<std::endl;
+        // Matrix<double, 6, Dynamic> lineTrajectory = getLine(distance, targetSpeed, controllerFreq, initX, initY, initZ, "x");
+        // std::cout<<lineTrajectory<<std::endl;
+        MyDoubleMatrix v0 = {{0.0}, {0.0}, {0.0}};                 // Initial velocity
+        MyDoubleMatrix a0 = {{0.0}, {0.0}, {0.0}};                 // Initial acceleration
+        MyDoubleMatrix vt = {{targetSpeed}, {targetSpeed}, {0.0}}; // Target velocity
+        MyDoubleMatrix at = {{0.0}, {0.0}, {0.0}};                 // Target acceleration
+        double r = R;
+        double arvSpeed = 2.0;
+        // MinimumTrajPlanner trajPlanner(circleTrajectory, arvSpeed, controllerFreq, v0, a0, vt, at, r);
+        MinimumTrajPlanner trajPlanner(circleTrajectory, arvSpeed, controllerFreq, v0, a0, vt, at, r);
 
-    return 0;
-}
+        // Call the arrangeT method
+        trajPlanner.arrangeT();
+        MyDoubleVector time_stamps = trajPlanner.getTimestamps();
+        std::cout << "Time stamps: ";
+        // Print the time stamps
+        for (size_t i = 0; i < time_stamps.size(); ++i)
+        {
+            std::cout << time_stamps[i] << " ";
+        }
+        return 0;
+    }
