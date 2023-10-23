@@ -9,44 +9,37 @@ import numpy as np
 # @param initY 初始位置y
 # @param initZ 初始位置z
 # @return 6*len(theta)的矩阵，第一行为x，第二行为y，第三行为z，第四行为vx，第五行为vy，第六行为vz
-
-
 def getCircle(R, targetSpeed, controllerFreq, initX, initY, initZ):
     # 二维测试轨迹——圆形
-    stepDis = targetSpeed / controllerFreq  # 计算每一步的距离
-    stepTheta = stepDis / R  # 计算每一步的角度
-    # 生成0到2pi, 步长为stepTheta的数组 arrange创建等差数组
+    stepDis = targetSpeed / controllerFreq
+    stepTheta = stepDis / R
     theta = np.arange(0, 2 * np.pi, stepTheta)
+<<<<<<< HEAD:TrajectoryGenerator.py
     x = R * np.cos(theta) + initX  # 极坐标系中圆的参数方程
     # print("x=",x)
+=======
+
+    x = R * np.cos(theta) + initX
+>>>>>>> 95d8fe4 (seperate functions):origin-code/TrajectoryGenerator.py
     y = R * np.sin(theta) + initY
-    # print("y=",y)
-    z = np.ones(len(theta)) * initZ  # 将所有点的z坐标初始化为initZ
-    # print("z=",z)
-    # ones创建长度为(len(theta) 即Theta的个数, 圆形轨迹上圆的数量的一维数组), 并初始化为全1
+    z = np.ones(len(theta)) * initZ
 
     # 前向差分求速度
-    # eye创建二维矩阵, 对角线为1, 其余为0, 现在将对角线上的元素全部初始化为-1
     speedMatrix = np.eye(len(theta)) * (-1)
-    for i in range(len(theta)):  # range是一个函数, 用来生成一个整数序列, 从0开始, 到len(theta)结束, 步长为1
-        # %是取余运算符, 左上-右下对角线下一行上的元素为1, 右上方的那个是1, 其余是0
+    for i in range(len(theta)):
         speedMatrix[i][(i - 1) % len(theta)] = 1
     speedMatrix = speedMatrix.T
 
-    vx = speedMatrix.dot(x) * controllerFreq  # 坐标的更新, 实际上是速度
-    # print("vx=",vx)
+    vx = speedMatrix.dot(x) * controllerFreq
     vy = speedMatrix.dot(y) * controllerFreq
-    # print("vy=",vy)
     vz = speedMatrix.dot(z) * controllerFreq
-    # print("vz=",vz)
 
     # vx = -targetSpeed * np.sin(theta)
     # vy =  targetSpeed * np.cos(theta)
     # vz = np.zeros(len(theta))
 
     # 合并为一个6*len(theta)的矩阵
-    trajectory = np.vstack((x, y, z, vx, vy, vz))  # vstack将数组按垂直方向叠加
-    # print (trajectory)
+    trajectory = np.vstack((x, y, z, vx, vy, vz))
 
     return trajectory
 
@@ -134,12 +127,14 @@ def getLine(distance, targetSpeed, controllerFreq, initX, initY, initZ, Directio
 
     return trajectory
 
+<<<<<<< HEAD:TrajectoryGenerator.py
 
 # 定义类
 
+=======
+>>>>>>> 95d8fe4 (seperate functions):origin-code/TrajectoryGenerator.py
 
 class MinimumTrajPlanner:
-    # 类似于构造函数赋初始值
     def __init__(self, path, arvSpeed, controllerFreq, v0, a0, vt, at, r):
         # r:derivertive order, 1:minimum vel 2:minimum acc 3:minimum jerk 4:minimum snap
         self.r = r
@@ -149,6 +144,7 @@ class MinimumTrajPlanner:
         self.Freq = controllerFreq  # 控制频率
 
         # 检查速度和加速度是否为3*1
+<<<<<<< HEAD:TrajectoryGenerator.py
         if (
             v0.shape != (3, 1)
             or a0.shape != (3, 1)
@@ -157,6 +153,10 @@ class MinimumTrajPlanner:
         ):
             # 初速度, 初始加速度, 末速度, 末加速度 必须满足参数输入要求: 三行一列
             raise ValueError("v0, a0, vt, at must be 3*1")
+=======
+        if v0.shape != (3, 1) or a0.shape != (3, 1) or vt.shape != (3, 1) or at.shape != (3, 1):
+            raise ValueError('v0, a0, vt, at must be 3*1')
+>>>>>>> 95d8fe4 (seperate functions):origin-code/TrajectoryGenerator.py
 
         # 起始速度、加速度
         self.v0 = v0.T
@@ -167,7 +167,7 @@ class MinimumTrajPlanner:
         self.at = at.T
 
         # 路径点的时刻
-        self.ts = None  # 自动创建, 不需要定义 厉害死了
+        self.ts = None
         self.T = None
 
         # 轨迹阶数
@@ -175,6 +175,7 @@ class MinimumTrajPlanner:
 
     def arrangeT(self):
         # 计算每个路径点的时间戳
+<<<<<<< HEAD:TrajectoryGenerator.py
         dx = np.diff(self.path)  # 计算这个点和上一个点的差值 diff()计算数组中相邻元素的差值
         # np.sum(dx ** 2, axis=0)每个维度的平方总和
         # np.sqrt(np.sum(dx ** 2, axis=0))每个维度的平方总和求平方根, 得到每个维度上的长度
@@ -184,25 +185,18 @@ class MinimumTrajPlanner:
         self.T = distance / self.arvSpeed  # arvSpeed是规定的平均速度, 可计算出需要花费的时间
         # 时间戳用于表示运动轨迹中的时间。对于每个路径点，时间戳表示该点在运动开始后经过的时间量
         self.ts = [0]  # ts是列表, 用来表示每个路径点对应的时间戳, 从0开始
+=======
+>>>>>>> 95d8fe4 (seperate functions):origin-code/TrajectoryGenerator.py
 
-        # shape[1]表示列数, 即路径点的个数
-        # for循环, 从0开始, 到路径点的个数-1结束(最后的时刻已知), 步长为1
+        dx = np.diff(self.path)
+
+        distance = np.sum(np.sqrt(np.sum(dx ** 2, axis=0)))
+        self.T = distance / self.arvSpeed
+
+        self.ts = [0]
         for i in range(self.path.shape[1] - 1):
-            # self.ts.append(self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed)
-            dt = np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed
-            # np.sqrt(np.sum(dx[:, i] ** 2))表示第i个点和第i-1个点的差值, 两个路径点的距离
-            # np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed) 表示两个路径点之间的时间
-            # self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed将上述时间间隔加到上一个时间戳上，得到当前路径点的时间戳
-            # self.ts.append(...)将计算得到的时间戳添加到时间戳列表中，用于记录每个路径点对应的时间。
-            if i == 0:
-                # For the first interval, use half of the calculated time interval
-                self.ts.append(self.ts[i] + 0.5 * dt)
-            elif i == self.path.shape[1] - 2:
-                # For the last interval, use the remaining time
-                self.ts.append(self.ts[i] + 0.5 * dt)
-                self.ts.append(self.ts[i] + dt)
-            else:
-                self.ts.append(self.ts[i] + dt)
+            self.ts.append(
+                self.ts[i] + np.sqrt(np.sum(dx[:, i] ** 2)) / self.arvSpeed)
 
         # # debug
         # if self.ts[-1] == self.T:
@@ -211,7 +205,7 @@ class MinimumTrajPlanner:
         self.ts = np.array(self.ts)
         # np.savetxt('ts.txt', self.ts, fmt='%.4f', delimiter=',')
 
-    def computeQ(self, n, r, t1, t2):  # 基于Lagrange多项式的插值
+    def computeQ(self, n, r, t1, t2):
         # n:polynormial order
         # r:derivertive order, 1:minimum vel 2:minimum acc 3:minimum jerk 4:minimum snap
         # t1:start timestamp for polynormial
@@ -445,9 +439,13 @@ class MinimumTrajPlanner:
 
         return trajectory
 
+<<<<<<< HEAD:TrajectoryGenerator.py
         # 定义圆形轨迹参数
 
 
+=======
+# 定义圆形轨迹参数
+>>>>>>> 95d8fe4 (seperate functions):origin-code/TrajectoryGenerator.py
 # R = 5.0  # 圆形轨迹半径
 # targetSpeed = 0.02  # 目标速度
 # controllerFreq = 100.0  # 控制频率
@@ -487,7 +485,8 @@ at = np.array([[0.0], [0.0], [0.0]])  # Target acceleration
 r = R  # Radius
 arvSpeed = 2.0  # Average speed
 
-planner = MinimumTrajPlanner(circle, arvSpeed, controllerFreq, v0, a0, vt, at, r)
+planner = MinimumTrajPlanner(
+    circle, arvSpeed, controllerFreq, v0, a0, vt, at, r)
 
 # Call the arrangeT method to calculate time stamps
 planner.arrangeT()
