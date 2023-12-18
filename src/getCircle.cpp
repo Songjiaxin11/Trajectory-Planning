@@ -1,5 +1,5 @@
 #include "parameters.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 using namespace Eigen;
 using namespace std;
 MatrixXd getCircle(double R, double targetSpeed, double controllerFreq, double initX, double initY, double initZ)

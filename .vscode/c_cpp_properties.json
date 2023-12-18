@@ -2,6 +2,7 @@
     "configurations": [
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
@@ -14,15 +15,27 @@
             ]
 =======
             "name": "Linux",
+=======
+            "name": "Win32",
+>>>>>>> f0132f4 (🎉 Update main)
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:\\eigen\\eigen-3.4.0"
             ],
+<<<<<<< HEAD
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64"
 >>>>>>> 95d8fe4 (seperate functions)
+=======
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
+>>>>>>> f0132f4 (🎉 Update main)
         }
     ],
     "version": 4
