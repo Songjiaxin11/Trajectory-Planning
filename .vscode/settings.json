@@ -1,6 +1,4 @@
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
     "files.associations": {
         "dense": "cpp",
         "array": "cpp",
@@ -12,62 +10,23 @@
         "cmath": "cpp",
         "complex": "cpp",
         "condition_variable": "cpp",
-=======
-    "C_Cpp.errorSquiggles": "enabled",
-=======
->>>>>>> f0132f4 (🎉 Update main)
-    "files.associations": {
-        "dense": "cpp",
-        "array": "cpp",
-        "atomic": "cpp",
-        "*.tcc": "cpp",
-        "cctype": "cpp",
-        "chrono": "cpp",
-        "clocale": "cpp",
-        "cmath": "cpp",
-<<<<<<< HEAD
-        "compare": "cpp",
-        "concepts": "cpp",
->>>>>>> 95d8fe4 (seperate functions)
-=======
-        "complex": "cpp",
-        "condition_variable": "cpp",
->>>>>>> f0132f4 (🎉 Update main)
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",
         "cstdio": "cpp",
         "cstdlib": "cpp",
-<<<<<<< HEAD
-<<<<<<< HEAD
         "cstring": "cpp",
         "ctime": "cpp",
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
         "list": "cpp",
-=======
-        "cwchar": "cpp",
-        "cwctype": "cpp",
-        "deque": "cpp",
-        "string": "cpp",
->>>>>>> 95d8fe4 (seperate functions)
-=======
-        "cstring": "cpp",
-        "ctime": "cpp",
-        "cwchar": "cpp",
-        "cwctype": "cpp",
-        "deque": "cpp",
-        "list": "cpp",
->>>>>>> f0132f4 (🎉 Update main)
         "unordered_map": "cpp",
         "vector": "cpp",
         "exception": "cpp",
         "algorithm": "cpp",
         "functional": "cpp",
         "iterator": "cpp",
-<<<<<<< HEAD
-<<<<<<< HEAD
         "map": "cpp",
         "memory": "cpp",
         "memory_resource": "cpp",
@@ -77,66 +36,21 @@
         "ratio": "cpp",
         "set": "cpp",
         "string": "cpp",
-=======
-=======
-        "map": "cpp",
->>>>>>> f0132f4 (🎉 Update main)
-        "memory": "cpp",
-        "memory_resource": "cpp",
-        "numeric": "cpp",
-        "optional": "cpp",
-        "random": "cpp",
-<<<<<<< HEAD
->>>>>>> 95d8fe4 (seperate functions)
-=======
-        "ratio": "cpp",
-        "set": "cpp",
-        "string": "cpp",
->>>>>>> f0132f4 (🎉 Update main)
         "string_view": "cpp",
         "system_error": "cpp",
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> f0132f4 (🎉 Update main)
         "hash_map": "cpp",
         "fstream": "cpp",
         "future": "cpp",
         "initializer_list": "cpp",
         "iomanip": "cpp",
-<<<<<<< HEAD
-=======
-        "initializer_list": "cpp",
->>>>>>> 95d8fe4 (seperate functions)
-=======
->>>>>>> f0132f4 (🎉 Update main)
         "iosfwd": "cpp",
         "iostream": "cpp",
         "istream": "cpp",
         "limits": "cpp",
-<<<<<<< HEAD
-<<<<<<< HEAD
         "mutex": "cpp",
-        "new": "cpp",
-        "ostream": "cpp",
-        "sstream": "cpp",
-        "stdexcept": "cpp",
-        "streambuf": "cpp",
-        "thread": "cpp",
-        "cinttypes": "cpp",
-        "typeinfo": "cpp"
-    },
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
-    "python.formatting.provider": "none"
-=======
-=======
-        "mutex": "cpp",
->>>>>>> f0132f4 (🎉 Update main)
         "new": "cpp",
         "ostream": "cpp",
         "sstream": "cpp",
@@ -146,12 +60,4 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     }
-<<<<<<< HEAD
->>>>>>> 95d8fe4 (seperate functions)
-=======
-    // "[python]": {
-    //     "editor.defaultFormatter": "ms-python.black-formatter"
-    // },
-    // "python.formatting.provider": "none"
->>>>>>> f0132f4 (🎉 Update main)
 }
